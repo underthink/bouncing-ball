@@ -41,3 +41,13 @@ gulp build-dist
 ```
 
 ...which will also do things like minifing the javascript.
+
+### Tests
+
+To run tests, do:
+
+```
+gulp test
+```
+
+This is done automatically as part of the build-* targets.
