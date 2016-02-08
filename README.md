@@ -6,6 +6,10 @@ Clicking on the window will spawn a ball at that location with a random velocity
 
 ## Running the project
 
+### ...Here's One I Made Earlier
+
+If you don't want to build the entire project, there is a pre-made version (run as a 'production' build) in the ```dist/``` directory.
+
 ### Initial setup
 
 To pull in all the dependencies, run:
