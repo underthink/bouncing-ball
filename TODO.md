@@ -10,3 +10,5 @@ A few things weren't implemented due to various constraints (including time):
  * build: We don't minify css (or use sass). We could.
  * build: We should use JSLint to automatically check style of our scripts at build time.
  * build: We could generate sourcemaps for uglified JS
+ * build: We should probably build dev and dist packages to different directories
+ * general: More tests for classes that touch the DOM! Due to a lack of time, the only class with 'useful' tests are ones that don't do that.
