@@ -66,12 +66,12 @@ gulp.task('clean', function() {
 });
 
 // Build our project for development
-gulp.task('dev', function(callback) {
+gulp.task('build-dev', function(callback) {
     gulpSequence('clean', ['test', 'copy-css', 'copy-html', 'build-dev-js'])(callback);
 });
 
 // Build our project for distribution
-gulp.task('dist', function(callback) {
+gulp.task('build-dist', function(callback) {
     gulpSequence('clean', ['test', 'copy-css', 'copy-html', 'build-dist-js'])(callback);
 });
 
@@ -83,8 +83,8 @@ gulp.task('test', function () {
 
 // Watch our sources for changes, and re-run dev if we see anything
 gulp.task('watch',function() {
-    gulp.watch([ALL_SOURCE_FILES, ALL_SPEC_FILES], ['dev'])
+    gulp.watch([ALL_SOURCE_FILES, ALL_SPEC_FILES], ['build-dev'])
 });
 
 // ...and if nothing's given we just run the 'dev' target
-gulp.task('default', ['dev']);
+gulp.task('default', ['build-dev']);

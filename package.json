@@ -5,7 +5,7 @@
   "author": "Rob Newman <rob@robnewman.io>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nodejitsu/browsenpm.org"
+    "url": "https://github.com/underthink/bouncing-ball"
   },
   "dependencies": {},
   "devDependencies": {
