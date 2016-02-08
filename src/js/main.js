@@ -1,17 +1,19 @@
-import Ball from './model/ball';
-import BallElement from './model/ball_dom_thing';
+import { Ball } from './model/ball';
+import BallElement from './view/ball_element';
+import AnimatableUpdater from './animatable_updater';
 
 
-var ball = Ball.createBallWithRandomVelocity(100, 100);
-var ballElement = new BallElement(ball);
+var animator = new AnimatableUpdater();
 
-ballElement.insertDomObject();
+// register the event handlers to create a new ball element (and delegate its animation to the AnimatableUpdater)
+document.addEventListener('click', (event) => {
+    var ball = Ball.createBallWithRandomVelocity(event.clientX, event.clientY);
+    var ballElement = new BallElement(ball);
 
-document.be = ballElement;
+    ballElement.insertDomObject();
 
-function tick() {
-    document.be.tick();
-    window.requestAnimationFrame(tick);
-}
+    animator.addAnimatable(ballElement);
+});
 
-tick();
+// ...and actually start animation :)
+animator.queueNextAnimationFrame();

@@ -1,58 +1,90 @@
-//import gulp from 'gulp';
-//import babel from 'gulp-babel';
-//import browserify from 'browserify';
-//
-//
-//
-//var bundler = browserify();
-//
-//gulp.task('js', function () {
-//    return gulp.src('src/**/*.js')
-//        .pipe(babel(
-//            {'formatter': 'iife'}
-//        ))
-//        .pipe(bundler())
-//        .pipe(gulp.dest('dist'));
-//});
+import babelify from "babelify";
+import browserify from "browserify";
+import del from "del";
+import gulp from "gulp";
+import gulpSequence from "gulp-sequence";
+import gulpStreamify from 'gulp-streamify';
+import jasmine from "gulp-jasmine";
+import source from "vinyl-source-stream";
+import uglify from "gulp-uglify";
 
 
-var gulp = require('gulp');
-var browserify = require('browserify');
-var babelify = require('babelify');
-var source = require('vinyl-source-stream');
-var gutil = require('gulp-util');
-var del = require('del');
+// constants we'll use to build our app, defining things like where source files can be found
+const ALL_SPEC_FILES = "./spec/**/*";
+const ALL_SOURCE_FILES = "./src/**/*";
+// more specific file patterns
+const JS_ENTRYPOINT = "./src/js/main.js";
+const HTML_FILES = "./src/**/*.html";
+const CSS_FILES = "./src/css/**/*.css";
+const JS_SPECS = "./spec/**/*.js";
+// destinations
+const DESTINATION_DIR = "./dist/";
+const DESTINATION_JS_FILE = "balls.js";
 
-// Lets bring es6 to es5 with this.
-// Babel - converts ES6 code to ES5 - however it doesn't handle imports.
-// Browserify - crawls your code for dependencies and packages them up
-// into one file. can have plugins.
-// Babelify - a babel plugin for browserify, to make browserify
-// handle es6 including imports.
-gulp.task('js', function() {
-    browserify({
-        entries: './src/js/main.js',
-        debug: true
-    })
+
+/** Make the 'common' bit of the JS build pipeline, including converting ES6 to something slightly more
+ * browser-friendly */
+function makePartialJsPipeline() {
+    return browserify({
+            entries: JS_ENTRYPOINT,
+            debug: true
+        })
         .transform(babelify)
-        .on('error',gutil.log)
         .bundle()
-        .on('error',gutil.log)
-        .pipe(source('bundle.js'))
-        .pipe(gulp.dest('dist'));
+        .pipe(source(DESTINATION_JS_FILE));
+}
+
+
+// Builds the JS, un-minified
+gulp.task('build-dev-js', function() {
+    makePartialJsPipeline()
+        .pipe(gulp.dest(DESTINATION_DIR));
 });
 
+// Builds the JS, minified
+gulp.task('build-dist-js', function() {
+    makePartialJsPipeline()
+        .pipe(gulpStreamify(uglify()))
+        .pipe(gulp.dest(DESTINATION_DIR));
+});
+
+// Copy the HTML resources to our dest directory
 gulp.task('copy-html', function() {
-    gulp.src('./src/**/*.html')
-        .pipe(gulp.dest('./dist'));
+    gulp.src(HTML_FILES)
+        .pipe(gulp.dest(DESTINATION_DIR));
 });
 
-gulp.task('watch',function() {
-    gulp.watch('**/*.js',['es6'])
+// Copy the CSS resources to our dest directory
+gulp.task('copy-css', function() {
+    gulp.src(CSS_FILES)
+        .pipe(gulp.dest(DESTINATION_DIR));
 });
 
+// Clean up our destination directory
 gulp.task('clean', function() {
-    return del(['./dist']);
+    return del([DESTINATION_DIR]);
 });
 
-gulp.task('default', ['watch']);
+// Build our project for development
+gulp.task('dev', function(callback) {
+    gulpSequence('clean', ['test', 'copy-css', 'copy-html', 'build-dev-js'])(callback);
+});
+
+// Build our project for distribution
+gulp.task('dist', function(callback) {
+    gulpSequence('clean', ['test', 'copy-css', 'copy-html', 'build-dist-js'])(callback);
+});
+
+// Run Jasmine tests
+gulp.task('test', function () {
+    return gulp.src(JS_SPECS)
+        .pipe(jasmine());
+});
+
+// Watch our sources for changes, and re-run dev if we see anything
+gulp.task('watch',function() {
+    gulp.watch([ALL_SOURCE_FILES, ALL_SPEC_FILES], ['dev'])
+});
+
+// ...and if nothing's given we just run the 'dev' target
+gulp.task('default', ['dev']);
